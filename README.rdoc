@@ -2,4 +2,4 @@
 
 The website is currently hosted at:
 
-https://limitless-beach-2910.herokuapp.com/
+https://limitless-beach-2910.herokuapp.com
