@@ -17,7 +17,8 @@ module Interpolator
     address = "#{query.to_s.gsub(/\s/,'+')}+Victoria+Australia"
     geocode = JSON.parse(open(
       "#{@@GEOCODEURL}json?address=#{address}&key=#{@@GEOCODE_API_KEY}").read)
-    return geocode["results"].first["geometry"]["location"]
+    out = geocode["results"].first["geometry"]["location"]
+    {lat: out["lat"], lon: out["lng"]}
   end
   def station_to_postcode(station)
     address = "#{station.to_s.gsub(/\s/,'+')}+Victoria+Australia"
