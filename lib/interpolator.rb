@@ -1,7 +1,6 @@
 require 'nokogiri'
 require 'json'
 require 'open-uri'
-require 'debugger'
 
 module Interpolator
   @@GEOCODE_API_KEY = "AIzaSyAc_WiZgYEUu9dGCiNcR_0v652lY2uugJ0"
