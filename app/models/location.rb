@@ -1,6 +1,8 @@
 include Math
 
 class Location < ActiveRecord::Base
+  has_many :data
+  has_many :predictions
 
   def self.find_neighbours(loc1, rad)
     # loc1 = [lat,lon]

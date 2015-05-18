@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150518030801) do
+ActiveRecord::Schema.define(version: 20150518033436) do
 
   create_table "data", force: :cascade do |t|
     t.string   "windDirection"
@@ -31,7 +31,10 @@ ActiveRecord::Schema.define(version: 20150518030801) do
     t.float    "precipProb"
     t.string   "condition"
     t.float    "cloudCover"
+    t.integer  "location_id"
   end
+
+  add_index "data", ["location_id"], name: "index_data_on_location_id"
 
   create_table "locations", force: :cascade do |t|
     t.string   "station"
@@ -47,8 +50,11 @@ ActiveRecord::Schema.define(version: 20150518030801) do
     t.float    "rainProb"
     t.float    "tempValue"
     t.float    "tempProb"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "location_id"
   end
+
+  add_index "predictions", ["location_id"], name: "index_predictions_on_location_id"
 
 end
