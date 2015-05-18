@@ -62,19 +62,16 @@ module Scraper
     doc = Nokogiri::HTML(open(URL))
     # Get time and convert to ISO standard
     bom_time = doc.css("td[headers*='datetime'][headers*=#{obs_station}]").text
-    self.dateTime = self.toISOtime(bom_time)
+    self.obsTime = self.toISOtime(bom_time)
     # Get other weather attributes
     self.temp = doc.css("td[headers*='tmp'][headers*=#{obs_station}]").text
     self.dewPoint = doc.css("td[headers*='dewpoint'][headers*=#{obs_station}]").text
-    # Additional data to help regressions?
-=begin
-       self.humidity = doc.css("td[headers*='relhum'][headers*=#{obs_station}]").text
-       self.wetBulb = doc.css("td[headers*='delta-t'][headers*=#{obs_station}]").text
-       self.pressure = doc.css("td[headers*='pressure'][headers*=#{obs_station}]").text
-=end
+    self.humidity = doc.css("td[headers*='relhum'][headers*=#{obs_station}]").text
+    self.wetBulb = doc.css("td[headers*='delta-t'][headers*=#{obs_station}]").text
+    self.pressure = doc.css("td[headers*='pressure'][headers*=#{obs_station}]").text
     # Convert dir to bearing
-    self.windDir= doc.css("td[headers*='wind-dir'][headers*=#{obs_station}]").text
-    self.windSpd= doc.css("td[headers*='wind-spd-kmh'][headers*=#{obs_station}]").text
+    self.windDirection= doc.css("td[headers*='wind-dir'][headers*=#{obs_station}]").text
+    self.windSpeed= doc.css("td[headers*='wind-spd-kmh'][headers*=#{obs_station}]").text
     self.rainSince9am = doc.css("td[headers*='rainsince9am'][headers*=#{obs_station}]").text
     # Set source identifier
     self.source = 'bom'
@@ -90,16 +87,14 @@ module Scraper
     # Aggregate new data with existing data in StationReading object
     self.temp = forecast["currently"]["temperature"]
     self.dewPoint = forecast["currently"]["dewPoint"]
-    self.windBear = forecast["currently"]["windBearing"]
+    self.windBearing = forecast["currently"]["windBearing"]
     self.windSpeed = forecast["currently"]["windSpeed"]
     self.precipIntense = forecast["currently"]["precipIntensity"]
     self.precipProb = forecast["currently"]["precipProbability"]
     self.condition = forecast["currently"]["summary"]
-=begin
-      self.humidity = forecast["currently"]["humidity"]
-      self.pressure = forecast["currently"]["pressure"]
-      self.cloudCover = forecast["currently"]["cloudCover"]
-=end
+    self.humidity = forecast["currently"]["humidity"]
+    self.pressure = forecast["currently"]["pressure"]
+    self.cloudCover = forecast["currently"]["cloudCover"]
     # Set source identifier
     self.source = 'fio'
   end

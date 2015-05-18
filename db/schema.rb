@@ -11,15 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150515042940) do
+ActiveRecord::Schema.define(version: 20150518030801) do
 
   create_table "data", force: :cascade do |t|
-    t.float    "precip"
-    t.string   "wind_direction"
-    t.float    "wind_speed"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
-    t.float    "rain_since_9am"
+    t.string   "windDirection"
+    t.float    "windSpeed"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.float    "rainSince9am"
+    t.string   "source"
+    t.string   "obsTime"
+    t.float    "temp"
+    t.float    "dewPoint"
+    t.float    "wetBulb"
+    t.float    "humidity"
+    t.float    "pressure"
+    t.float    "windBearing"
+    t.float    "precipIntense"
+    t.float    "precipProb"
+    t.string   "condition"
+    t.float    "cloudCover"
   end
 
   create_table "locations", force: :cascade do |t|
@@ -32,10 +43,10 @@ ActiveRecord::Schema.define(version: 20150515042940) do
   end
 
   create_table "predictions", force: :cascade do |t|
-    t.float    "rain_value"
-    t.float    "rain_prob"
-    t.float    "temp_value"
-    t.float    "temp_prob"
+    t.float    "rainValue"
+    t.float    "rainProb"
+    t.float    "tempValue"
+    t.float    "tempProb"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
