@@ -1,6 +1,8 @@
 include Math
 
 class Location < ActiveRecord::Base
+
+  belongs_to :postcode
   has_many :data
   has_many :predictions
 
