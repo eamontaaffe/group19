@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150518033436) do
+ActiveRecord::Schema.define(version: 20150519022437) do
 
   create_table "data", force: :cascade do |t|
     t.string   "windDirection"
@@ -40,6 +40,14 @@ ActiveRecord::Schema.define(version: 20150518033436) do
     t.string   "station"
     t.float    "lat"
     t.float    "lon"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "postcode_id"
+  end
+
+  add_index "locations", ["postcode_id"], name: "index_locations_on_postcode_id"
+
+  create_table "postcodes", force: :cascade do |t|
     t.integer  "postcode"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
