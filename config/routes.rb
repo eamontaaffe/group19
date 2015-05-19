@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
   root 'application#index'
   get 'weather/locations' => 'locations#get_locations', :defaults => { :format => 'json' }
-  get '/weather/predicition/:post_code/:period', => 'predictions#get_prediction_by_postcode', :defaults => { :format => 'json' }
+  get '/weather/predicition/:post_code/:period' => 'predictions#get_prediction_by_postcode', :defaults => { :format => 'json' }
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
