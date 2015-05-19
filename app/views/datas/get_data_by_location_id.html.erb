@@ -1,0 +1,21 @@
+<h3><%="Date: #{@out[:date]}\n"%></h3>
+<h3>Locations:</h3>
+<table>
+  <tr>
+    <th>time</th>
+    <th>temp</th>
+    <th>precip</th>
+    <th>wind_direction</th>
+    <th>wind_speed</th>
+  </tr>
+
+  <% @out[:measurements].each do |measure| %>
+      <tr>
+        <td><%= measure[:time] %></td>
+        <td><%= measure[:temp] %></td>
+        <td><%= measure[:precip] %></td>
+        <td><%= measure[:wind_direction] %></td>
+        <td><%= measure[:wind_speed] %></td>
+      </tr>
+  <% end %>
+</table>
