@@ -2,14 +2,16 @@ require 'time'
 
 class PredictionsController < ApplicationController
   def get_prediction_by_postcode
-    postcode = params[:post_code]
-    period = params[:period]
-    @out = {location_id: postcode, predictions: {}}
-    startTime = DateTime.now
-    endTime = startTime + period.minutes
-    (startTime..endTime).step(15*60).each do |i|
+    post_code = params[:post_code]
+    period = params[:period].to_i
+    @out = {post_code: post_code, predictions: {}}
+    startTime = Time.now
+    (0..period).step(10).each do |i|
       @out[:predictions][i] = {
-        time: Date
+        time: (startTime + 60*i).strftime("%I:%M%P %F"),
+        rain: nil,
+        temp: nil,
+        remaining_measurements: nil
       }
     end
     respond_to do |format|
