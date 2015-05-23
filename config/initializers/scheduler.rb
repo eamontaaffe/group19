@@ -12,6 +12,7 @@ end
 # Staggered updates for FIO, 40 min blocks
 group = (Location.all.size/6).ceil
 # 1st batch of updates
+updater.every '40m', :first_in => '5m' do
   Location.all[0..group].each do |loc|
     loc.new_FIOreading
   end
