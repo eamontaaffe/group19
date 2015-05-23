@@ -16,6 +16,7 @@ end
 =end
 
 require 'Matrix'
+# time is in UNIX epoch, units = seconds
 
 # == CRUDE PREDICTOR BASED ON PROJECT 1 METHODS ==
 
@@ -62,7 +63,26 @@ def calc_r_squared(fitted_data, y_var)
   return (1 - (ss_residual/ss_total))
 end
 
-=begin
+# == WEATHER APP SPECIFIC METHODS ==
+
+# times are in UNIX epoch, units = seconds
+def get_temp_predictions(current_time,past_times,past_temp_values)
+  betas = poly_regression(past_times,past_temp_values)
+  future_times = []
+  future_temps = []
+  future_probs = []
+  r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_temp_values)
+  (0..180).each do |min_from_now|
+    future_time = current_time+min_from_now*60
+    future_times << future_time
+    future_temp = calc_fitted_data(betas,future_time)
+    future_temps << future_temp
+    future_probs << r_squared
+  end
+  return future_times, future_temps, future_probs
+end
+
+
 # test data
 input_1 = lambda {|val| 2*(val**5) - 3*(val**3) + 19.8*val - 12.92 }
 test_x = []
@@ -79,4 +99,5 @@ puts b
 est_y = calc_fitted_data(b,test_x)
 puts est_y
 puts calc_r_squared(est_y,test_y)
-=end
+
+puts get_temp_predictions(Time.now.to_i,test_x,test_y)
