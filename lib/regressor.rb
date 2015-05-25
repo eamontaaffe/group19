@@ -16,6 +16,8 @@ end
 =end
 
 require 'Matrix'
+# require 'statsample'
+
 # time is in UNIX epoch, units = seconds
 
 # == CRUDE PREDICTOR BASED ON PROJECT 1 METHODS ==
