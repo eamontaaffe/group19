@@ -54,6 +54,7 @@ gem 'tzinfo-data'
 gem 'coffee-script-source', '1.8.0'
 # 3rd party task scheduler
 gem 'rufus-scheduler', '3.1.1'
-
+# stat libraries to use
+gem 'statsample'
 # Uml diagram generator
 gem 'railroady'
