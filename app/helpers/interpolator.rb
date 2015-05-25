@@ -1,7 +1,7 @@
 require 'nokogiri'
 require 'json'
 require 'open-uri'
-require 'pry'
+# require 'pry'
 include Math
 
 module Interpolator
