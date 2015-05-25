@@ -1,24 +1,5 @@
-=begin
-# project 1 - polynomial method
-def poly_regress
-  # iterate through n = 2 to n = 10
-  temp_betas = Array.new
-  temp_R2s = Array.new
-  (2..10).each do |order|
-    x_data = @time.map { |x| (0..order).map { |pow| (x**pow).to_f } }
-    temp_b = LS_fit.call(x_data,@data)
-    temp_betas.push(temp_b)
-    temp_R2s.push(r_squared(fitted_y(temp_b,'polynomial')))
-  end
-  # return equation coefficients with highest R^2 value
-  return temp_betas[temp_R2s.index(temp_R2s.max)]
-end
-=end
-
 require 'Matrix'
 # require 'statsample'
-
-# time is in UNIX epoch, units = seconds
 
 # == CRUDE PREDICTOR BASED ON PROJECT 1 METHODS ==
 
@@ -68,18 +49,44 @@ end
 # == WEATHER APP SPECIFIC METHODS ==
 
 # times are in UNIX epoch, units = seconds
-def get_temp_predictions(current_time,past_times,past_temp_values)
+def get_temp_predictions(past_times,past_temp_values)
   betas = poly_regression(past_times,past_temp_values)
   future_times = []
   future_probs = []
   r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_temp_values)
-  (0..180).each do |min_from_now|
-    future_time = current_time+min_from_now*60
-    future_times << future_time
+  # add buffer for possible user call within 10 min of last prediction generation
+  (0..190).each do |min_from_now|
+    future_times << min_from_now
     future_probs << r_squared
   end
   future_temps = calc_fitted_data(betas,future_times)
   return future_times, future_temps, future_probs
+end
+
+# == WRITING NEW PREDICTIONS ==
+
+# convert obsTime string to Time object
+def obs_to_datetime(obsTime)
+  return Time.new(obsTime[0..3],obsTime[5..6],obsTime[8..9],obsTime[11..12],obsTime[14..15],obsTime[17..18])
+end
+
+def new_location_predictions
+  # store current time, must be constant throughout method call
+  currentTime = Time.now
+  # initialise arrays
+  past_times = []
+  past_temps = []
+  past_windSpeeds = []
+  past_windDirections = []
+  past_rains = []
+  # self is a Location object with Data and Predictions
+  self.data.where(source:'bom').each do |dp|
+    # current time is 0 min, past times are neg min from current
+    past_times << -round((currentTime-obs_to_datetime(dp.obsTime))/60)
+    past_temps << dp.temp
+    past_windDirections << dp.windDirection
+    past_windSpeeds << dp.windSpeed
+  end
 end
 
 =begin
