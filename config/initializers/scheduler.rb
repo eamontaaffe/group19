@@ -3,11 +3,11 @@ require 'rufus-scheduler'
 updater = Rufus::Scheduler.new
 
 # BOM update every 10 minutes
-updater.every '10m', :first => :now do
-  Location.all.each do |loc|
-    loc.new_BOMreading
-  end
-end
+# updater.every '10m', :first => :now do
+#   Location.all.each do |loc|
+#     loc.new_BOMreading
+#   end
+# end
 
 # Staggered updates for FIO, 40 min blocks
 group = (Location.all.size/6).ceil
