@@ -22,7 +22,7 @@ class DatasController < ApplicationController
             measurements:[]}
     @selected_measure.each do |data|
       @out[:measurements] << {
-          time: data.created_at,
+          time: data.created_at.strftime("%I:%M%P"),
           temp: data.temp,
           precip: data.precipIntense,
           wind_direction: data.windDirection,
