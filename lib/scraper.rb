@@ -10,7 +10,7 @@ module Scraper
 
 # ForecastIO unique API keys
   API_KEY_1 = '1e33ffaa15047094eef5cf43468bc8d2'
-  API_KEY_2 = '1e33ffaa15047094eef5cf43468bc8d2'
+  API_KEY_2 = '47664ca29b361759de7e5f2c33791020'
   API_KEY_3 = '1e33ffaa15047094eef5cf43468bc8d2'
 # ForecastIO base URL
   BASE_URL = 'https://api.forecast.io/forecast'
