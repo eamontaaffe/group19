@@ -7,7 +7,7 @@ class Location < ActiveRecord::Base
   has_many :predictions
 
   include NewReading
-  include Regressor
+  #include Regressor
 
   def self.find_neighbours(loc1, rad)
     # @loc1 = find(locID);
