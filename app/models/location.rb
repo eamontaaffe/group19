@@ -21,6 +21,10 @@ class Location < ActiveRecord::Base
     self.class.distance_to_location(loc,[self.lat,self.lon])
   end
 
+  def self.closest_to(latlon)
+    all.sort_by{|loc| loc.distance_to(latlon)}.first
+  end
+
   private
   def self.distance_to_location(loc1,loc2)
     ## From http://stackoverflow.com/questions/12966638/how-to-calculate-the-
