@@ -70,7 +70,7 @@ module Scraper
     self.wetBulb = doc.css("td[headers*='delta-t'][headers*=#{obs_station}]").text
     self.pressure = doc.css("td[headers*='pressure'][headers*=#{obs_station}]").text
     # Convert dir to bearing
-    self.windDirection= doc.css("td[headers*='wind-dir'][headers*=#{obs_station}]").text
+    self.windDirection= doc.css("td[headers*='-wind-dir'][headers*=#{obs_station}]").text
     self.windSpeed= doc.css("td[headers*='wind-spd-kmh'][headers*=#{obs_station}]").text
     self.rainSince9am = doc.css("td[headers*='rainsince9am'][headers*=#{obs_station}]").text
     # Set source identifier
@@ -79,11 +79,19 @@ module Scraper
 
   # import data from ForecastIO
   def import_FIOdata
+    # Cycle API keys depending in time of day - more available calls
+    current = Time.now
+    if (current.hour >= 00 && current.hour < 8)
+      key = API_KEY_1
+    elsif (current.hour >= 8 && current.hour < 16)
+      key = API_KEY_2
+    else
+      key = API_KEY_3
+    end
     # Get longitude and latitude data for API call
-    lat_long = "#{Station.find(self.station_id).lat},#{Station.find(self.station_id).long}"
+    lat_long = "#{Location.find(self.location_id).lat},#{Location.find(self.location_id).lon}"
     # Read in data as JSON
-    # Cycle API keys here based off scheduler flag?
-    forecast = JSON.parse(open("#{BASE_URL}/#{API_KEY_1}/#{lat_long},#{self.time}?units=ca").read)
+    forecast = JSON.parse(open("#{BASE_URL}/#{key}/#{lat_long},#{current.to_i}?units=ca").read)
     # Aggregate new data with existing data in StationReading object
     self.temp = forecast["currently"]["temperature"]
     self.dewPoint = forecast["currently"]["dewPoint"]
