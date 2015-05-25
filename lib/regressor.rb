@@ -69,30 +69,29 @@ end
 def get_temp_predictions(current_time,past_times,past_temp_values)
   betas = poly_regression(past_times,past_temp_values)
   future_times = []
-  future_temps = []
   future_probs = []
   r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_temp_values)
   (0..180).each do |min_from_now|
     future_time = current_time+min_from_now*60
     future_times << future_time
-    future_temp = calc_fitted_data(betas,future_time)
-    future_temps << future_temp
     future_probs << r_squared
   end
+  future_temps = calc_fitted_data(betas,future_times)
   return future_times, future_temps, future_probs
 end
 
-
-# test data
-input_1 = lambda {|val| 2*(val**5) - 3*(val**3) + 19.8*val - 12.92 }
+=begin
+# test code
+# input_1 = lambda {|val| 2*(val**5) - 3*(val**3) + 19.8*val - 12.92 }
+input_1 = lambda { |val| 50+rand(50) }
 test_x = []
 test_y = []
 (1..100).each do |x|
-  test_x << x
+  test_x << Time.now.to_i + 60*x
   test_y << input_1.call(x)
 end
-# puts test_x
-# puts test_y
+puts test_x.map{ |x| Math.log(x,10)}
+puts test_y
 
 b = poly_regression(test_x,test_y)
 puts b
@@ -101,3 +100,4 @@ puts est_y
 puts calc_r_squared(est_y,test_y)
 
 puts get_temp_predictions(Time.now.to_i,test_x,test_y)
+=end
