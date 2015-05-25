@@ -9,8 +9,8 @@ class Location < ActiveRecord::Base
   include NewReading
 
   def self.find_neighbours(loc1, rad)
-    # loc1 = [lat,lon]
-    # radius is in meters
+    # @loc1 = find(locID);
+    # loc1 = [@loc1.lat,@loc1.lon]
     neighbours = Location.all.select do |loc2|
       distance_to_location(loc1,[loc2.lat,loc2.lon]) < rad
     end

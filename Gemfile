@@ -6,6 +6,7 @@ gem 'rails', '4.2.1'
 # Use sqlite3 as the database for Active Record
 group :development do
   gem 'sqlite3'
+  gem 'pry'
 end
 group :production do
   gem 'pg'
@@ -53,3 +54,6 @@ gem 'tzinfo-data'
 gem 'coffee-script-source', '1.8.0'
 # 3rd party task scheduler
 gem 'rufus-scheduler', '3.1.1'
+
+# Uml diagram generator
+gem 'railroady'
