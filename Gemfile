@@ -51,3 +51,5 @@ end
 
 gem 'tzinfo-data'
 gem 'coffee-script-source', '1.8.0'
+# 3rd party task scheduler
+gem 'rufus-scheduler', '3.1.1'

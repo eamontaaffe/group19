@@ -1,8 +1,12 @@
 include Math
 
 class Location < ActiveRecord::Base
+
+  belongs_to :postcode
   has_many :data
   has_many :predictions
+
+  include NewReading
 
   def self.find_neighbours(loc1, rad)
     # loc1 = [lat,lon]
