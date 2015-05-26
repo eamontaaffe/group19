@@ -50,14 +50,16 @@ module Regressor
 
 # == WEATHER APP SPECIFIC METHODS ==
 
-# times are in UNIX epoch, units = seconds
+  HORIZON = 190
+
+# times are in MINUTES, now = 0, past = neg
   def get_temp_predictions(past_times,past_temp_values)
     betas = poly_regression(past_times,past_temp_values)
     future_times = []
     future_probs = []
     r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_temp_values)
     # add buffer for possible user call within 10 min of last prediction generation
-    (0..190).each do |min_from_now|
+    (0..HORIZON).each do |min_from_now|
       future_times << min_from_now
       future_probs << r_squared
     end
@@ -73,6 +75,8 @@ module Regressor
   end
 
   def new_location_predictions
+    # delete all past predictions for location
+    self.predictions.delete_all
     # store current time, must be constant throughout method call
     currentTime = Time.now
     # initialise arrays
@@ -82,12 +86,22 @@ module Regressor
     past_windDirections = []
     past_rains = []
     # self is a Location object with Data and Predictions
-    self.data.where(source:'bom').each do |dp|
+    # limit data to last 100 points to avoid silly regressions
+    self.data.where(source:'bom').last(100).each do |dp|
       # current time is 0 min, past times are neg min from current
       past_times << -((currentTime-obs_to_datetime(dp.obsTime))/60).round
       past_temps << dp.temp
       past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
+    end
+    # regress all variables of interest
+    temp_predictions = get_temp_predictions(past_times,past_temps)
+    # write new predictions
+    (0..HORIZON).each do |min_from_now|
+      new_prediction = Prediction.new(location: self)
+      new_prediction.tempValue = temp_predictions[1][min_from_now]
+      new_prediction.tempProb = temp_predictions[2][min_from_now]
+      new_prediction.save
     end
   end
 
