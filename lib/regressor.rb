@@ -16,8 +16,8 @@ module Regressor
   }
 
   def poly_regression(x_var,y_var)
-    # 10th order polynomial regression
-    order = 10
+    # 3rd order polynomial regression
+    order = 3
     x_data = x_var.map { |x| (0..order).map { |pow| (x**pow).to_f } }
     return LS_fit.call(x_data,y_var)
   end
@@ -50,21 +50,34 @@ module Regressor
 
 # == WEATHER APP SPECIFIC METHODS ==
 
+# add buffer for possible user call within 10 min of last prediction generation
+# future times are positive 0..190 min
   HORIZON = 190
 
 # times are in MINUTES, now = 0, past = neg
-  def get_temp_predictions(past_times,past_temp_values)
-    betas = poly_regression(past_times,past_temp_values)
+  def get_generic_predictions(past_times,past_values)
+    betas = poly_regression(past_times,past_values)
+    # initialise secondary arrays
     future_times = []
     future_probs = []
-    r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_temp_values)
-    # add buffer for possible user call within 10 min of last prediction generation
+    r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_values)
     (0..HORIZON).each do |min_from_now|
       future_times << min_from_now
-      future_probs << r_squared
+      # probability should be decreasing further into horizon
+      # arbitrary decrease in R^2, statistically makes no sense, but whatever...
+      future_probs << r_squared*(1-(min_from_now/HORIZON)*0.1)
     end
-    future_temps = calc_fitted_data(betas,future_times)
-    return future_times, future_temps, future_probs
+    future_values = calc_fitted_data(betas,future_times)
+    # return [[val],[prob]] nested array
+    return future_values, future_probs
+  end
+
+  def get_temp_predictions(past_times,past_temps)
+    return get_generic_predictions(past_times,past_temps)
+  end
+
+  def get_windspeed_predictions(past_times,past_speeds)
+    return get_generic_predictions(past_times,past_speeds)
   end
 
 # == WRITING NEW PREDICTIONS ==
@@ -93,14 +106,19 @@ module Regressor
       past_temps << dp.temp
       past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
+      past_rains << dp.rainSince9am
     end
     # regress all variables of interest
     temp_predictions = get_temp_predictions(past_times,past_temps)
+    windSpeed_predictions = get_windspeed_predictions(past_times,past_windSpeeds)
     # write new predictions
     (0..HORIZON).each do |min_from_now|
       new_prediction = Prediction.new(location: self)
-      new_prediction.tempValue = temp_predictions[1][min_from_now]
-      new_prediction.tempProb = temp_predictions[2][min_from_now]
+      new_prediction.minute = min_from_now
+      new_prediction.tempValue = temp_predictions[0][min_from_now]
+      new_prediction.tempProb = temp_predictions[1][min_from_now]
+      new_prediction.windSpeedValue = windSpeed_predictions[0][min_from_now]
+      new_prediction.windSpeedProb = windSpeed_predictions[1][min_from_now]
       new_prediction.save
     end
   end
