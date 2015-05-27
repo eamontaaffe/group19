@@ -53,6 +53,7 @@ module Regressor
 # add buffer for possible user call within 10 min of last prediction generation
 # future times are positive 0..190 min
   HORIZON = 190
+  TIME_INT = [10,30,60,120,180]
 
 # times are in MINUTES, now = 0, past = neg
   def get_generic_predictions(past_times,past_values)
@@ -61,11 +62,12 @@ module Regressor
     future_times = []
     future_probs = []
     r_squared = calc_r_squared(calc_fitted_data(betas,past_times),past_values)
-    (0..HORIZON).each do |min_from_now|
+    (TIME_INT).each do |min_from_now|
       future_times << min_from_now
       # probability should be decreasing further into horizon
       # arbitrary decrease in R^2, statistically makes no sense, but whatever...
-      future_probs << r_squared*(1-(min_from_now/HORIZON)*0.1)
+      future_probs << r_squared
+      # future_probs << r_squared*(1-(min_from_now/HORIZON)*0.1)
     end
     future_values = calc_fitted_data(betas,future_times)
     # return [[val],[prob]] nested array
@@ -102,16 +104,29 @@ module Regressor
     # limit data to last 100 points to avoid silly regressions
     self.data.where(source:'bom').last(100).each do |dp|
       # current time is 0 min, past times are neg min from current
-      past_times << -((currentTime-obs_to_datetime(dp.obsTime))/60).round
+      past_times << -((currentTime-obs_to_datetime(dp.obsTime))/60).round(2)
       past_temps << dp.temp
       past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
       past_rains << dp.rainSince9am
     end
+=begin
+    puts "times #{past_times.size}"
+    puts past_times
+    puts "temps #{past_temps.size}"
+    puts past_temps
+    puts "dirs #{past_windDirections.size}"
+    puts past_windDirections
+    puts "speeds #{past_windSpeeds.size}"
+    puts past_windSpeeds
+    puts "rains #{past_rains.size}"
+    puts past_rains
+=end
     # regress all variables of interest
     temp_predictions = get_temp_predictions(past_times,past_temps)
     windSpeed_predictions = get_windspeed_predictions(past_times,past_windSpeeds)
-    # write new predictions
+=begin
+    # write new predictions - minute by minute (0..HOR)
     (0..HORIZON).each do |min_from_now|
       new_prediction = Prediction.new(location: self)
       new_prediction.minute = min_from_now
@@ -119,6 +134,17 @@ module Regressor
       new_prediction.tempProb = temp_predictions[1][min_from_now]
       new_prediction.windSpeedValue = windSpeed_predictions[0][min_from_now]
       new_prediction.windSpeedProb = windSpeed_predictions[1][min_from_now]
+      new_prediction.save
+    end
+=end
+    # write new predictions - spec intervals (TIME_INT)
+    TIME_INT.each_index do |index|
+      new_prediction = Prediction.new(location: self)
+      new_prediction.minute = TIME_INT[index]
+      new_prediction.tempValue = temp_predictions[0][index]
+      new_prediction.tempProb = temp_predictions[1][index]
+      new_prediction.windSpeedValue = windSpeed_predictions[0][index]
+      new_prediction.windSpeedProb = windSpeed_predictions[1][index]
       new_prediction.save
     end
   end
