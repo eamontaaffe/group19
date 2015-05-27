@@ -1,4 +1,6 @@
+ module RainfallRegressor
 # require plug in the nomalized time, observation time, and the past rain fall since 9.00 of the day
+
   def get_rainFall_predictions(past_times,past_rainfall_values,obsv_time)
     rainfall_expectation = []
     for i in 1..(past_rainfall_values.length-1)  #get rain fall expectation value substraction of the two neighbor value
@@ -42,3 +44,4 @@
     return  future_times, furure_rainfall, future_probs
 
   end
+ end
