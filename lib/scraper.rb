@@ -23,6 +23,8 @@ module Scraper
     iso_time.concat("%d-%02d-%02dT" % [time.year, time.month, bom_time[0..1].to_i])
     if bom_time[8..9] == 'pm'
       iso_time.concat("#{bom_time[3..4].to_i + 12}")
+    elsif (bom_time[8..9] == 'am' && bom_time[3..4].to_i == 12)
+      iso_time.concat('00')
     else
       iso_time.concat("#{bom_time[3..4]}")
     end
