@@ -1,7 +1,7 @@
 require 'Matrix'
+require 'statsample'
 
 module Regressor
-# require 'statsample'
 
 # == CRUDE PREDICTOR BASED ON PROJECT 1 METHODS ==
 
@@ -46,6 +46,10 @@ module Regressor
     ss_residual = ss_residual.reduce :+
     # R^2
     return (1 - (ss_residual/ss_total))
+  end
+
+  # statsample library OLS simple regression
+  def ols_simple_regress(x_var,y_var)
   end
 
 # == WEATHER APP SPECIFIC METHODS ==
