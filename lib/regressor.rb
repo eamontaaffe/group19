@@ -60,7 +60,7 @@ module Regressor
     ss_residual = ss_residual.map { |err| err**2 }
     ss_residual = ss_residual.reduce :+
     # R^2
-    return (1 - (ss_residual/ss_total))
+    return (1 - (ss_residual/ss_total)).round
   end
 
   # multiple order polynomial regression - returns best order of betas
@@ -374,10 +374,10 @@ end
     TIME_INT.each_index do |index|
       sub_array = []
       sub_array << TIME_INT[index]
-      sub_array << [rain_predictions[0][index], rain_predictions[1][index]]
-      sub_array << [temp_predictions[0][index], temp_predictions[1][index]]
-      sub_array << [windSpeed_predictions[0][index], windSpeed_predictions[1][index]]
-      sub_array << [windDir_predictions[0][index], windDir_predictions[1][index]]
+      sub_array << ['rain', rain_predictions[0][index], rain_predictions[1][index]]
+      sub_array << ['temp', temp_predictions[0][index], temp_predictions[1][index]]
+      sub_array << ['windSpeed', windSpeed_predictions[0][index], windSpeed_predictions[1][index]]
+      sub_array << ['windDir', windDir_predictions[0][index], windDir_predictions[1][index]]
       forecast << sub_array
     end
     return forecast
