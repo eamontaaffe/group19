@@ -161,9 +161,9 @@ module Regressor
 # future times are positive 0..190 min
   # HORIZON = 190
 # min intervals specified only
-  TIME_INT = [10,30,60,120,180]
+  TIME_INT = (0..180).step(10).to_a
 # sec intervals specified only
-  TIME_INT_UNIX = [10*60,30*60,60*60,120*60,180*60]
+  TIME_INT_UNIX = TIME_INT.map{|a| a*60}
 
 # calculating forecast
   def get_generic_predictions(currentTime,past_times,past_values)
@@ -303,6 +303,7 @@ module Regressor
       new_prediction.rainProb = rain_predictions[1][index]
       new_prediction.save
     end
+    self
 end
 
 # ON-CALL METHOD

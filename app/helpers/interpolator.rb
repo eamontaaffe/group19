@@ -6,31 +6,31 @@ include Math
 
 module Interpolator
   def interpolate(loc,time)
-    @@ATTRIBUTES = [:rainValue, :rainPob, :tempValue,
+    @@ATTRIBUTES = [:rainValue, :rainProb, :tempValue,
                     :tempProb ] #there are more to be added
 
-    @out = Prediction.new() # Doesn't add it to database unless you call :save.
+    @pred = Prediction.new() # Doesn't add it to database unless you call :save.
 
     @@ATTRIBUTES.each do |attribute|
-      @out.send(attribute,interpolate_attribute(loc,time,attribute))
+      @pred.update_attribute(attribute,interpolate_attribute(loc,time,attribute))
     end
-
-    return @out
+    logger.debug @pred
+    return @pred
   end
 
   def interpolate_attribute(loc,time,attribute)
     # Hash stores interpolation method to be used depending on
     # the attribute. Default is :nearest neighbour because it
     # cant go wrong
-    @@METHOD = {:rainSince9am => :inverse_distance_weighting,
-                :temp => :inverse_distance_weighting,
-                :dewPoint => :inverse_distance_weighting,
-                :wetBult => :inverse_distance_weighting,
-                :humidity => :inverse_distance_weighting,
-                :pressure => :inverse_distance_weighting,
-                :precipIntense => :inverse_distance_weighting,
-                :precipProb => :inverse_distance_weighting,
-                :cloudCover => :inverse_distance_weighting}
+    @@METHOD = {};#{:rainSince9am => :inverse_distance_weighting,
+                # :temp => :inverse_distance_weighting,
+                # :dewPoint => :inverse_distance_weighting,
+                # :wetBult => :inverse_distance_weighting,
+                # :humidity => :inverse_distance_weighting,
+                # :pressure => :inverse_distance_weighting,
+                # :precipIntense => :inverse_distance_weighting,
+                # :precipProb => :inverse_distance_weighting,
+                # :cloudCover => :inverse_distance_weighting}
     @@METHOD.default = (:nearest_neighbour)
 
     # Call the method for the required attribute
@@ -40,8 +40,15 @@ module Interpolator
   # This method just returns the reading from the closest weather station
   def nearest_neighbour(loc,time,attribute)
     # Needs to be updated once format is known
-    @prediction = Location.closest_to(loc).predictions.where(:time = time)
-    @prediction.send(attribute)
+    value = nil
+    @close_locations = Location.closest_array(loc,10)
+    @close_locations.reverse.each do |loc|
+      pred = loc.predictions.find_by(minute: time)
+      if !pred.nil?
+        value = pred.send(attribute)
+      end
+    end
+    value
   end
 
   # This is a local interpolation approach which uses a subset of locations
