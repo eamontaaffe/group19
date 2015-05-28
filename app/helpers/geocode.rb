@@ -11,6 +11,7 @@ module Geocode
   def postcode_to_lat_lon(postcode)
     geocode = query_to_json(postcode)
     top_result = geocode["results"].first
+    debugger
     out = top_result["geometry"]["location"]
     id_info = top_result["address_components"].select{|c| c["types"].include? "colloquial_area"}
     id = id_info.first["short_name"]
@@ -33,6 +34,7 @@ module Geocode
       "#{@@GEOCODEURL}json?address=#{address}&key=#{@@GEOCODE_API_KEY}").read)
     address_components = geocode["results"].first["address_components"]
     postal_codes = address_components.select {|c| c["types"] == ["postal_code"]}
-    postal_codes.first["long_name"].to_i
+
+    !postal_codes.first.nil? ? postal_codes.first["long_name"].to_i : "No Postcode"
   end
 end
