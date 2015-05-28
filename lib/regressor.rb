@@ -60,7 +60,15 @@ module Regressor
     ss_residual = ss_residual.map { |err| err**2 }
     ss_residual = ss_residual.reduce :+
     # R^2
-    return (1 - (ss_residual/ss_total)).round
+    r2 = (1 - (ss_residual/ss_total))
+    # brute force bad regressions to not break the scheduler
+    if r2.nan?
+      return -(1/0.0)
+    elsif r2 < -10000
+      return -10000
+    else
+      return r2
+    end
   end
 
   # multiple order polynomial regression - returns best order of betas

@@ -21,4 +21,8 @@ To assist with returning Location attributes, Postcodes was changed from a Locat
 \noindent One of the main challenges was working with the poor quality of data scraped from BoM (e.g. accumulated rainfall, overly discretised bearings, large gaps in time leading to significant bias) and limited timeseries support in existing Ruby gems such as \textbf{statsample}. Only basic arithmetic may be performed on Ruby's native DateTime object and their conversion to UNIX epoch to avoid the cyclical nature of time causes issues with integer overflows, etc. come matrix operations and compares during regression. This made integrating the work done in Project 1 especially difficult as many of the workarounds we tried resulted in very poorly fitted models. \\\\
 Ideally, a timeseries multi-variable OLS regression would've been used, but this would've required a more thorough understanding of weather effects that are beyond the scope of this subject and the given time constraints. In the end, the focus of the project was to deliver a sound application architecture where the majority of components and specific methods themselves are essentially of a plug-in nature and may be developed independently.
 
+\subsection*{Thoughts on Design}
+
+\noindent We thought that the prior implementation of a relatively sound design/program structure, even though finalised and subject to change and greatly assisted in the time to prototype a working application. This was mostly due to the fact that many of the components and their interactions at a high level were laid out and understood such that little time was wasted in directly writing the required helpers, modules, models and classes.
+
 \end{document}
