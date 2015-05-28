@@ -10,11 +10,13 @@ updater.every '10m', :first_in => '10s' do
   end
 end
 
-updater.every '10m', :first_in => '1m' do
+=begin
+updater.every '10m', :first_in => '2m' do
   Location.all.each do |location|
     location.new_location_predictions
   end
 end
+=end
 
 # Staggered updates for FIO, 40 min blocks
 group = (Location.all.size/6).ceil
