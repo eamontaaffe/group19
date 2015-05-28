@@ -46,7 +46,7 @@ class PredictionsController < ApplicationController
       }
     end
     respond_to do |format|
-      format.html {render get_prediction}
+      format.html { render html: get_prediction }
       format.json { render json: JSON.pretty_generate(@out.as_json) }
     end
   end

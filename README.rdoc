@@ -8,3 +8,5 @@ To initialise the app run:
 >> rake db:migrate
 >> rake db:seed
 ```
+
+To access html views, append '.html' to the url

@@ -1,0 +1,22 @@
+<h3><%=@out[:post_code].nil? ? "Lat: #{@out[:lattitude]}, Lon: #{:longitude}" : "Postcode: #{@out[:postcode]}"%></h3>
+<h3>Predictions:</h3>
+<table>
+  <tr>
+    <th>time</th>
+    <th>rain</th>
+    <th>temp</th>
+    <th>windSpd</th>
+    <th>windDir</th>
+
+  </tr>
+
+  <% @out[:prediction].each do |pred| %>
+    <tr>
+      <td><%= pred[:time].strftime("%I:%M%P %m-%d-%Y") %></td>
+      <td><%= pred[:rain] %></td>
+      <td><%= pred[:temp] %></td>
+      <td><%= pred[:windSpd] %></td>
+      <td><%= pred[:windDir] %></td>
+    </tr>
+  <% end %>
+</table>

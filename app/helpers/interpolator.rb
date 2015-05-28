@@ -23,7 +23,7 @@ module Interpolator
     # Hash stores interpolation method to be used depending on
     # the attribute. Default is :nearest neighbour because it
     # cant go wrong
-    @@METHOD = {};#{:rainSince9am => :inverse_distance_weighting,
+    @@METHOD =  {};#{:rainSince9am => :inverse_distance_weighting,
                 # :temp => :inverse_distance_weighting,
                 # :dewPoint => :inverse_distance_weighting,
                 # :wetBult => :inverse_distance_weighting,
@@ -69,8 +69,10 @@ module Interpolator
       weight = 1/(neighbour.distance_to(loc)**@@P)
       u_num += weight*neigh.prediction(time: time).send(attribute) ## Something like this
       u_den += weight
+      logger.debug weight
     end
+    value = u_num/u_den
     # binding.pry
-    return neighbours
+    return value
   end
 end
