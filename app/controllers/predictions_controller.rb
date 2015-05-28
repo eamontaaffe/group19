@@ -35,14 +35,14 @@ class PredictionsController < ApplicationController
       @interpolated_prediction = interpolate([@lat,@lon],i)
       @out[:prediction][i] = {
         time: (startTime + 60*i).strftime("%I:%M%P %m-%d-%Y"),
-        rain: {value: @interpolated_prediction.rainValue.round(2),
-          probability: @interpolated_prediction.rainProb.round(2)},
-        temp: {value: @interpolated_prediction.tempValue.round(2),
-          prob: @interpolated_prediction.tempProb.round(2)},
-        windSpd: {value: @interpolated_prediction.windSpeedValue.round(2),
-          prob: @interpolated_prediction.windSpeedProb.round(2)},
-        windDir: {value: @interpolated_prediction.windDirValue,
-          prob: @interpolated_prediction.windDirProb}
+        rain: {value: !@interpolated_prediction.rainValue.nil? ? @interpolated_prediction.rainValue.round(2) : nil,
+          probability: !@interpolated_prediction.rainProb.nil? ? @interpolated_prediction.rainProb.round(2) : nil},
+        temp: {value: !@interpolated_prediction.tempValue.nil? ? @interpolated_prediction.tempValue.round(2) : nil,
+          prob: !@interpolated_prediction.tempProb.nil? ? @interpolated_prediction.tempProb.round(2) : nil},
+        windSpd: {value: !@interpolated_prediction.windSpeedValue.nil? ? @interpolated_prediction.windSpeedValue.round(2) : nil,
+          prob: !@interpolated_prediction.windSpeedProb.nil? ? @interpolated_prediction.windSpeedProb.round(2) : nil},
+        windDir: {value: !@interpolated_prediction.windDirValue.nil? ? @interpolated_prediction.windDirValue.round(2) : nil,
+          prob: !@interpolated_prediction.windDirProb.nil? ? @interpolated_prediction.windDirProb.round(2) : nil}
       }
     end
     respond_to do |format|

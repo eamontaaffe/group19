@@ -11,6 +11,7 @@ module Regressor
     # least squares regression - matrix method
     m_x = Matrix[*x_data]
     m_y = Matrix.column_vector(y_data)
+    
     # print ((m_x.t*m_x).inv * m_x.t * m_y)
     betas = ((m_x.t*m_x).inv * m_x.t * m_y).transpose.to_a[0]
     # return coefficients to 2 d.p.

@@ -12,7 +12,13 @@ end
 
 updater.every '10m', :first_in => '2m' do
   Location.all.each do |location|
+    begin
     location.new_location_predictions
+    rescue Exception
+      logger.debug "========================================================="
+      logger.debug "IRREGULAR MATRIX EXCEPTION"
+      logger.debug "========================================================="
+    end
   end
 end
 
