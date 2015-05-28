@@ -103,10 +103,13 @@ Location.all.each do |location|
   puts "#{location.station.upcase} : #{station_to_postcode(location.station)}"
   postcode = station_to_postcode(location.station);
   if postcode.class != String
-    a = Postcode.new(postcode: postcode)
-    if a.save!
-      location.update_attribute(:postcode_id, a.id)
-      puts "POSTCODE ADDED!"
+    begin
+      a = Postcode.new(postcode: postcode)
+      if a.save!
+        location.update_attribute(:postcode_id, a.id)
+        puts "POSTCODE ADDED!"
+      end
+    rescue Exception
     end
   end
   puts "--------------------------------------------------------------"

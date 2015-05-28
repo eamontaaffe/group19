@@ -1,5 +1,10 @@
 #README
 
-The website is currently hosted at:
+To initialise the app run:
 
-https://limitless-beach-2910.herokuapp.com
+```bash
+>> bundle install --without production
+>> rake db:create
+>> rake db:migrate
+>> rake db:seed
+```
