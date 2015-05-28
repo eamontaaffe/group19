@@ -253,11 +253,46 @@ module Regressor
     return furure_rainfall, future_probs
   end
 
+  def bearing_to_dir(bearing)
+    dir_table = %w(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW)
+    bearing_table = [0,22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5]
+    bearing = bearing%360
+    return dir_table[bearing_table.find_index(bearing_table.min_by { |b| (b-bearing).abs })]
+  end
+
+  def get_winddir_predictions(currentTime,past_times,past_dirs)
+    # remove nil entries where wind speed is zero
+    puts past_dirs
+    puts "break"
+    puts past_times
+    past_dirs.each_index do |i|
+      if past_dirs[i] == nil
+        past_dirs.delete_at(i)
+        past_times.delete_at(i)
+        puts "#{i},#{past_dirs},#{past_times}"
+      end
+    end
+    puts "dirs #{past_dirs.size}"
+    puts "times #{past_times.size}"
+    dir_predictions = get_generic_predictions(currentTime,past_times,past_dirs)
+    dir_predictions[0].each_index do |bear|
+      dir_predictions[0][bear] == bearing_to_dir(dir_predictions[0][bear])
+    end
+    return dir_predictions
+  end
+
 # == WRITING NEW PREDICTIONS ==
 
 # Convert obsTime string to Ruby Time object
   def obs_to_datetime(obsTime)
     return Time.new(obsTime[0..3],obsTime[5..6],obsTime[8..9],obsTime[11..12],obsTime[14..15],obsTime[17..18])
+  end
+
+# BOM: 16-compass rose, FOI: CW bearing from N that wind is blowing FROM
+  def toBearing(dir)
+    dir_table = %w(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW CALM)
+    bearing_table = [0,22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5,360,nil]
+    return bearing_table[dir_table.find_index(dir)]
   end
 
 # WRITING TO THE DATABASE - PRE-GENERATION METHOD
@@ -271,8 +306,8 @@ module Regressor
     past_times = []
     past_temps = []
     past_windSpeeds = []
-    past_windDirections = []
     past_rains = []
+    past_windDirections = []
     # self is a Location object with Data and Predictions
     # limit data to last 100 points
     self.data.where(source:'bom').last(100).each do |dp|
@@ -281,14 +316,19 @@ module Regressor
       past_times << currentTime.minus_with_coercion(obs_to_datetime(dp.obsTime))/60.0
       # past_times << obs_to_datetime(dp.obsTime).to_i
       past_temps << dp.temp
-      past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
+      past_windDirections << toBearing(dp.windDirection)
       past_rains << dp.rainSince9am
     end
     # regress all variables of interest
+    puts past_times.size
+    puts "break1"
+    puts past_windDirections.size
+    puts "break2"
     temp_predictions = get_temp_predictions(0.0,past_times,past_temps)
     windSpeed_predictions = get_windspeed_predictions(0.0,past_times,past_windSpeeds)
     rain_predictions = get_rainFall_predictions(past_times,past_rains,past_obsTimes)
+    windDir_predictions = get_winddir_predictions(0.0,past_times,past_windDirections)
     # write new predictions - spec intervals (TIME_INT)
     TIME_INT.each_index do |index|
       new_prediction = Prediction.new(location: self)
@@ -297,6 +337,8 @@ module Regressor
       new_prediction.tempProb = temp_predictions[1][index]
       new_prediction.windSpeedValue = windSpeed_predictions[0][index]
       new_prediction.windSpeedProb = windSpeed_predictions[1][index]
+      new_prediction.windDirectionValue = windDir_predictions[0][index]
+      new_prediction.windDirectionProb = windDir_predictions[1][index]
       new_prediction.rainValue = rain_predictions[0][index]
       new_prediction.rainProb = rain_predictions[1][index]
       new_prediction.save
@@ -312,8 +354,8 @@ end
     past_times = []
     past_temps = []
     past_windSpeeds = []
-    past_windDirections = []
     past_rains = []
+    past_windDirections = []
     # self is a Location object with Data and Predictions
     # limit data to last 100 points
     self.data.where(source:'bom').last(100).each do |dp|
@@ -322,14 +364,17 @@ end
       past_times << currentTime.minus_with_coercion(obs_to_datetime(dp.obsTime))/60.0
       # past_times << obs_to_datetime(dp.obsTime).to_r
       past_temps << dp.temp
-      past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
+      past_windDirections << toBearing(dp.windDirection)
       past_rains << dp.rainSince9am
     end
+    puts past_windDirections.size
+    puts past_times.size
     # regress all variables of interest
     temp_predictions = get_temp_predictions(0.0,past_times,past_temps)
     windSpeed_predictions = get_windspeed_predictions(0.0,past_times,past_windSpeeds)
     rain_predictions = get_rainFall_predictions(past_times,past_rains,past_obsTimes)
+    windDir_predictions = get_winddir_predictions(0.0,past_temps,past_windDirections)
     # generate hash
     forecast = []
     TIME_INT.each_index do |index|
@@ -338,6 +383,7 @@ end
       sub_array << [rain_predictions[0][index], rain_predictions[1][index]]
       sub_array << [temp_predictions[0][index], temp_predictions[1][index]]
       sub_array << [windSpeed_predictions[0][index], windSpeed_predictions[1][index]]
+      sub_array << [windDir_predictions[0][index], windDir_predictions[1][index]]
       forecast << sub_array
     end
     return forecast
