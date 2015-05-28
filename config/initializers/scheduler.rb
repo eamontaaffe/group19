@@ -1,4 +1,5 @@
 require 'rufus-scheduler'
+if ActiveRecord::Base.connection.table_exists? 'locations'
 
 updater = Rufus::Scheduler.new
 
@@ -54,4 +55,5 @@ updater.every '40m', :first_in => '35m' do
   Location.all[(6*group+1)..(Location.all.size)].each do |loc|
     loc.new_FIOreading
   end
+end
 end
