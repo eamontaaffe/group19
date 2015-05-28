@@ -35,9 +35,14 @@ class PredictionsController < ApplicationController
       @interpolated_prediction = interpolate([@lat,@lon],i)
       @out[:prediction][i] = {
         time: (startTime + 60*i).strftime("%I:%M%P %m-%d-%Y"),
-        rain: @interpolated_prediction.rainValue,
-        temp: nil,#@interpolated_prediction.tempValue,
-        remaining_measurements: nil
+        rain: {value: @interpolated_prediction.rainValue.round(2),
+          probability: @interpolated_prediction.rainProb.round(2)},
+        temp: {value: @interpolated_prediction.tempValue.round(2),
+          prob: @interpolated_prediction.tempProb.round(2)},
+        windSpd: {value: @interpolated_prediction.windSpeedValue.round(2),
+          prob: @interpolated_prediction.windSpeedProb.round(2)},
+        windDir: {value: @interpolated_prediction.windDirValue,
+          prob: @interpolated_prediction.windDirProb}
       }
     end
     respond_to do |format|

@@ -7,7 +7,8 @@ include Math
 module Interpolator
   def interpolate(loc,time)
     @@ATTRIBUTES = [:rainValue, :rainProb, :tempValue,
-                    :tempProb ] #there are more to be added
+                    :tempProb, :windSpeedValue, :windSpeedProb,
+                    :windDirValue, :windDirProb] #there are more to be added
 
     @pred = Prediction.new() # Doesn't add it to database unless you call :save.
 
