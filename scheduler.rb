@@ -1,4 +1,4 @@
-require 'rufus-scheduler'
+ require 'rufus-scheduler'
 
 updater = Rufus::Scheduler.new
 
