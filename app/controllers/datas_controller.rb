@@ -9,7 +9,7 @@ class DatasController < ApplicationController
       @station = params[:location_ids]
       @location_called = Location.find_by station: @station
     else
-      get_data_by_postcode
+      redirect_to(action: 'get_data_by_postcode') and return
     end
 
 
@@ -34,7 +34,7 @@ class DatasController < ApplicationController
     end
     respond_to do |format|
         format.html
-        format.json { render json: JSON.pretty_generate(@out.as_json) }
+        format.json { render json: JSON.pretty_generate(@out.as_json) and return }
     end
 
   end
@@ -57,11 +57,11 @@ class DatasController < ApplicationController
     #
     # logger.debug "==========================================================="
     # logger.debug "HEEEEEEEEEEEEEEERRRRRRRRRRRRRRREEEEEEEEEEEEE"
-    # logger.debug "==========================================================="
+    logger.debug JSON.pretty_generate(@out.as_json)
 
     respond_to do |format|
-      format.html and return
-      format.json { render(json: JSON.pretty_generate(@out.as_json)); return}
+      format.html
+      format.json { render(json: JSON.pretty_generate(@out.as_json)) }
     end
   end
 
