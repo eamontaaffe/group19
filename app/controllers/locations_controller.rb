@@ -17,7 +17,7 @@ class LocationsController < ApplicationController
       }
     end
     respond_to do |format|
-      format.html 
+      format.html
       format.json { render json: JSON.pretty_generate(@out.as_json) }
     end
   end
