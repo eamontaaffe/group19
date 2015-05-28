@@ -9,10 +9,9 @@ updater.every '10m', :first_in => '10s' do
   end
 end
 
-
 updater.every '10m', :first_in => '1m' do
-  Location.all.each do |loc|
-    loc.new_location_predictions
+  Location.all.each do |location|
+    location.new_location_predictions
   end
 end
 

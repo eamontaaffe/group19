@@ -90,3 +90,7 @@ Location.create(station: 'mallacoota', lat: -37.60, lon: 149.73)
 Location.create(station: 'mount-nowa-nowa', lat: -37.69, lon: 148.09)
 Location.create(station: 'omeo', lat: -37.10, lon: 147.60)
 Location.create(station: 'orbost', lat: -37.69, lon: 148.47)
+
+(3000..3999).each do |pc|
+  Postcode.create(postcode: pc)
+end
