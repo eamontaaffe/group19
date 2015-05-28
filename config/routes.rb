@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   root 'application#index'
   get 'weather/locations' => 'locations#get_locations', :defaults => { :format => 'json' }
   get 'weather/data/:location_ids/:date' => 'datas#get_data_by_location_id', :defaults => { :format => 'json' }
-  get 'weather/data/:location_ids/:date' => 'datas#get_data_by_postcode', :defaults => { :format => 'json' }
+  get 'weather/data/postcode/:location_ids/:date' => 'datas#get_data_by_postcode', :defaults => { :format => 'json' }
   get '/weather/predicition/:post_code/:period' => 'predictions#get_prediction_by_postcode', :defaults => { :format => 'json' }
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'

@@ -54,13 +54,11 @@ class DatasController < ApplicationController
         #"13:12pm	21-03-2015"
       }
     end
-    #
-    # logger.debug "==========================================================="
-    # logger.debug "HEEEEEEEEEEEEEEERRRRRRRRRRRRRRREEEEEEEEEEEEE"
-    logger.debug JSON.pretty_generate(@out.as_json)
+
+    # logger.debug JSON.pretty_generate(@out.as_json)
 
     respond_to do |format|
-      format.html
+      format.html { render :template => "locations/get_locations"}
       format.json { render(json: JSON.pretty_generate(@out.as_json)) }
     end
   end
