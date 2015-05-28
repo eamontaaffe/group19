@@ -1,3 +1,6 @@
+require "#{Rails.root}/app/helpers/geocode"
+include Geocode
+
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 #
@@ -91,6 +94,20 @@ Location.create(station: 'mount-nowa-nowa', lat: -37.69, lon: 148.09)
 Location.create(station: 'omeo', lat: -37.10, lon: 147.60)
 Location.create(station: 'orbost', lat: -37.69, lon: 148.47)
 
-(3000..3999).each do |pc|
-  Postcode.create(postcode: pc)
+# (3000..3999).each do |pc|
+#   Postcode.create(postcode: pc)
+# end
+
+Location.all.each do |location|
+  puts "--------------------------------------------------------------"
+  puts "#{location.station.upcase} : #{station_to_postcode(location.station)}"
+  postcode = station_to_postcode(location.station);
+  if postcode.class != String
+    a = Postcode.new(postcode: postcode)
+    if a.save!
+      location.update_attribute(:postcode_id, a.id)
+      puts "POSTCODE ADDED!"
+    end
+  end
+  puts "--------------------------------------------------------------"
 end
