@@ -1,4 +1,4 @@
-require 'matrix'
+require 'Matrix'
 require 'statsample'
 
 module Regressor
