@@ -22,7 +22,9 @@ module Regressor
     x_var.each do |t|
       temp_var = 0
       for deg in (betas.length-1).downto(0)
-        temp_var += betas[deg]*(t**deg)
+        # logger.debug (betas[deg]*(t**deg)).class
+        # logger.debug temp_var.class
+        temp_var += [(betas[deg]*(t**deg))].flatten.first
       end
       # append final value as fitted y value
       fitted_data.push(temp_var)
@@ -30,7 +32,6 @@ module Regressor
     return fitted_data
   end
 
-  # working with negative time units renders log and exp forms invalid
 =begin
   def calc_fitted_data_log(betas,x_var)
     fitted_data = []
@@ -60,15 +61,7 @@ module Regressor
     ss_residual = ss_residual.map { |err| err**2 }
     ss_residual = ss_residual.reduce :+
     # R^2
-    r2 = (1 - (ss_residual/ss_total))
-    # brute force bad regressions to not break the scheduler
-    if r2.nan?
-      return -(1/0.0)
-    elsif r2 < -10000
-      return -10000
-    else
-      return r2
-    end
+    return (1 - (ss_residual/ss_total))
   end
 
   # multiple order polynomial regression - returns best order of betas
@@ -98,7 +91,6 @@ module Regressor
     # a is constant, b is coefficient
   end
 
-# working with negative time units renders log and exp forms invalid
 =begin
   # natural logarithmic regression - reuses simple_regress
   def log_regress(x_var,y_var)
@@ -141,7 +133,6 @@ module Regressor
     # type = String.new
     betas.each_index do |b|
       rs.push(calc_r_squared(calc_fitted_data(betas[b],x_var),y_var))
-      # working with negative time units renders log and exp forms invalid
 =begin
       if betas[b] != :outDom
         if b == 2
@@ -219,19 +210,19 @@ module Regressor
 # JIM'S rainfall predictor
   def get_rainFall_predictions(past_times,past_rainfall_values,obsv_time)
     rainfall_expectation = []
-    for i in 1..(past_rainfall_values.length-1)  # get rain fall expectation value substraction of the two neighbor value
+    for i in 1..(past_rainfall_values.length-1)  #get rain fall expectation value substraction of the two neighbor value
       rainfall_expectation << past_rainfall_values[i]-past_rainfall_values[i-1]
     end
-    for i in 1..(obsv_time.length-1)   # clear the rainfall expectation value if different day
+    for i in 1..(obsv_time.length-1)   #clear the rainfall expectation value if different day
       obsv_time_date1 = obsv_time[i]
       obsv_time_date2 = obsv_time[i-1]
       if obsv_time_date1[8..9].to_f-obsv_time_date2[8..9].to_f>0
         rainfall_expectation[i-1] = past_rainfall_values[i];
       end
     end
+    past_times.delete_at(past_times.length-1)
     begin
-      betas = get_best_betas(past_times[0..(past_times.length-2)],rainfall_expectation)
-        # handle NaN cases where there is no rainfall over the period
+      betas = get_best_betas(past_times,rainfall_expectation)
     rescue ArgumentError
       return [[0.0,0.0,0.0,0.0,0.0],[1,1,1,1,1]]
     end
@@ -242,7 +233,6 @@ module Regressor
       future_times << min_from_now
       future_probs << r_squared
     end
-    # return rain expected within next hour instead of accumulative rainfall after 9am
 =begin
     ##this part convert the expectation value back to since 9 am value
     future_rainfall_expection = calc_fitted_data(betas,future_times[1..189])
@@ -265,42 +255,11 @@ module Regressor
     return furure_rainfall, future_probs
   end
 
-  # convert true compass bearing to BOM direction
-  def bearing_to_dir(bearing)
-    dir_table = %w(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW)
-    bearing_table = [0,22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5]
-    bearing = bearing%360
-    return dir_table[bearing_table.find_index(bearing_table.min_by { |b| (b-bearing).abs })]
-  end
-
-  def get_winddir_predictions(currentTime,past_times,past_dirs)
-    # remove nil entries where wind speed is zero
-    past_dirs.each_index do |i|
-      if past_dirs[i] == nil
-        past_dirs.delete_at(i)
-        past_times.delete_at(i)
-      end
-    end
-    dir_predictions = get_generic_predictions(currentTime,past_times,past_dirs)
-    # convert regressed bearings back into BOM direction
-    dir_predictions[0].each_index do |bear|
-      dir_predictions[0][bear] = bearing_to_dir(dir_predictions[0][bear])
-    end
-    return dir_predictions
-  end
-
 # == WRITING NEW PREDICTIONS ==
 
 # Convert obsTime string to Ruby Time object
   def obs_to_datetime(obsTime)
     return Time.new(obsTime[0..3],obsTime[5..6],obsTime[8..9],obsTime[11..12],obsTime[14..15],obsTime[17..18])
-  end
-
-# BOM: 16-compass rose, FOI: CW bearing from N that wind is blowing FROM
-  def toBearing(dir)
-    dir_table = %w(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW CALM)
-    bearing_table = [0,22.5,45,67.5,90,112.5,135,157.5,180,202.5,225,247.5,270,292.5,315,337.5,360,nil]
-    return bearing_table[dir_table.find_index(dir)]
   end
 
 # WRITING TO THE DATABASE - PRE-GENERATION METHOD
@@ -314,8 +273,8 @@ module Regressor
     past_times = []
     past_temps = []
     past_windSpeeds = []
-    past_rains = []
     past_windDirections = []
+    past_rains = []
     # self is a Location object with Data and Predictions
     # limit data to last 100 points
     self.data.where(source:'bom').last(100).each do |dp|
@@ -324,15 +283,14 @@ module Regressor
       past_times << currentTime.minus_with_coercion(obs_to_datetime(dp.obsTime))/60.0
       # past_times << obs_to_datetime(dp.obsTime).to_i
       past_temps << dp.temp
+      past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
-      past_windDirections << toBearing(dp.windDirection)
       past_rains << dp.rainSince9am
     end
     # regress all variables of interest
     temp_predictions = get_temp_predictions(0.0,past_times,past_temps)
     windSpeed_predictions = get_windspeed_predictions(0.0,past_times,past_windSpeeds)
     rain_predictions = get_rainFall_predictions(past_times,past_rains,past_obsTimes)
-    windDir_predictions = get_winddir_predictions(0.0,past_times,past_windDirections)
     # write new predictions - spec intervals (TIME_INT)
     TIME_INT.each_index do |index|
       new_prediction = Prediction.new(location: self)
@@ -341,8 +299,6 @@ module Regressor
       new_prediction.tempProb = temp_predictions[1][index]
       new_prediction.windSpeedValue = windSpeed_predictions[0][index]
       new_prediction.windSpeedProb = windSpeed_predictions[1][index]
-      new_prediction.windDirValue = windDir_predictions[0][index]
-      new_prediction.windDirProb = windDir_predictions[1][index]
       new_prediction.rainValue = rain_predictions[0][index]
       new_prediction.rainProb = rain_predictions[1][index]
       new_prediction.save
@@ -358,8 +314,8 @@ end
     past_times = []
     past_temps = []
     past_windSpeeds = []
-    past_rains = []
     past_windDirections = []
+    past_rains = []
     # self is a Location object with Data and Predictions
     # limit data to last 100 points
     self.data.where(source:'bom').last(100).each do |dp|
@@ -368,24 +324,22 @@ end
       past_times << currentTime.minus_with_coercion(obs_to_datetime(dp.obsTime))/60.0
       # past_times << obs_to_datetime(dp.obsTime).to_r
       past_temps << dp.temp
+      past_windDirections << dp.windDirection
       past_windSpeeds << dp.windSpeed
-      past_windDirections << toBearing(dp.windDirection)
       past_rains << dp.rainSince9am
     end
     # regress all variables of interest
     temp_predictions = get_temp_predictions(0.0,past_times,past_temps)
     windSpeed_predictions = get_windspeed_predictions(0.0,past_times,past_windSpeeds)
     rain_predictions = get_rainFall_predictions(past_times,past_rains,past_obsTimes)
-    windDir_predictions = get_winddir_predictions(0.0,past_times,past_windDirections)
     # generate hash
     forecast = []
     TIME_INT.each_index do |index|
       sub_array = []
       sub_array << TIME_INT[index]
-      sub_array << ['rain', rain_predictions[0][index], rain_predictions[1][index]]
-      sub_array << ['temp', temp_predictions[0][index], temp_predictions[1][index]]
-      sub_array << ['windSpeed', windSpeed_predictions[0][index], windSpeed_predictions[1][index]]
-      sub_array << ['windDir', windDir_predictions[0][index], windDir_predictions[1][index]]
+      sub_array << [rain_predictions[0][index], rain_predictions[1][index]]
+      sub_array << [temp_predictions[0][index], temp_predictions[1][index]]
+      sub_array << [windSpeed_predictions[0][index], windSpeed_predictions[1][index]]
       forecast << sub_array
     end
     return forecast

@@ -10,7 +10,7 @@ class PredictionsController < ApplicationController
     @lon = latlon[:lon]
     @out = {post_code: post_code}
 
-    redirect_to get_prediction
+    redirect_to get_prediction  and return
   end
 
   def get_prediction_by_lat_lon
@@ -18,7 +18,7 @@ class PredictionsController < ApplicationController
     @lon = params[:lon]
     @out = {lattitude: @lat, longitude: @lon}
 
-    redirect_to get_prediction
+    redirect_to get_prediction and return
   end
 
   def get_prediction
@@ -35,7 +35,7 @@ class PredictionsController < ApplicationController
     #   }
     # end
     respond_to do |format|
-      format.html
+      format.html {render get_prediction}
       format.json { render json: JSON.pretty_generate(@out.as_json) }
     end
   end
