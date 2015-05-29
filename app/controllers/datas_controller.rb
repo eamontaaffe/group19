@@ -50,7 +50,7 @@ class DatasController < ApplicationController
         id: loc.station,
         lat: loc.lat,
         lon: loc.lon,
-        last_update: loc.updated_at.strftime("%I:%M%P %F")
+        last_update: loc.updated_at.strftime("%I:%M%P %m-%d-%Y")
         #"13:12pm	21-03-2015"
       }
     end
