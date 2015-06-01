@@ -14,7 +14,12 @@
 
 \noindent Our initial application design would pre-calculate predictions up until the desired maximum time horizon every time a scraping operation had been completed. These predictions would then be stored in the database such that user forecast calls would simply be a look-up operation (plus some interpolation if the the call is made on a new location not already seeded into the database) rather than the slower process of having to compute a regression against existing data and fitting new points on call. \\\\
 The main difficulty is anticipating user calls at times that don't coincide exactly with the times that the pre-generated predictions produce. To achieve this to within minute accuracy of the user call, minutely readings need to be predicted. For a maximum horizon of 180 minutes and approximately 75 seeded stations, predictions write time to the database becomes a bottleneck. Testing showed that computing predictions on call was sufficiently fast that it became a more attractive option given its ease of implementation and it does not necessitate a Prediction model, simplifying the overall application architecture. \\\\ 
-To assist with returning Location attributes, Postcodes was changed from a Locations field to a separate model with Location associations i.e. Postcode has-many Locations and Location belongs-to Postcode. This would negate the need to  filter out locations by postcodes as they are now directly indexed. This would also reduce the number of calls made using the Google GeoCode API.
+To assist with returning Location attributes, Postcodes was changed from a Locations field to a separate model with Location associations i.e. Postcode has-many Locations and Location belongs-to Postcode. This would negate the need to  filter out locations by postcodes as they are now directly indexed. This would also reduce the number of calls made using the Google GeoCode API. \\\\
+The changes to how postcodes are handled mean that postcode API calls no longer need to go through the Geocode API via the interpolator component and can now directly pull from the Postcode model. In the component diagram, this simply means that the interfaces need to change such that there are added associations between the Rails controller and Postcode tables in the SQLite Database. \\\\
+
+\includegraphics[scale=0.45]{P3_component_modified.png}
+
+\newpage
 
 \subsection*{Challenges}
 
