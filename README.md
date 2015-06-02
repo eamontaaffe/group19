@@ -7,6 +7,7 @@ To initialise the app run:
 >> rake db:create
 >> rake db:migrate
 >> rake db:seed
+>> rails s
 ```
 
 To access html views, append '.html' to the url
